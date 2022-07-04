@@ -19,6 +19,7 @@ package com.example.android.roomwordssample;
 import android.app.Application;
 
 import androidx.lifecycle.LiveData;
+import androidx.room.Database;
 
 import android.os.AsyncTask;
 
@@ -31,6 +32,7 @@ import java.util.List;
 
 class WordRepository {
 
+    WordRoomDatabase db;
     private WordDao mWordDao;
     private LiveData<List<Word>> mAllWords;
 
@@ -39,7 +41,8 @@ class WordRepository {
     // See the BasicSample in the android-architecture-components repository at
     // https://github.com/googlesamples
     WordRepository(Application application) {
-        WordRoomDatabase db = WordRoomDatabase.getDatabase(application);
+        //WordRoomDatabase db = WordRoomDatabase.getDatabase(application);
+        db = WordRoomDatabase.getDatabase(application);
         mWordDao = db.wordDao();
         mAllWords = mWordDao.getAlphabetizedWords();
     }
@@ -56,6 +59,10 @@ class WordRepository {
     void insert(Word word) {
         new insertAsyncTask(mWordDao).execute(word);
     }
+
+    /*void update(Word word) {
+        new updateAsyncTask(mWordDao).execute(word);
+    }*/
 
     void delete(Word word) {
         new deleteWordAsyncTask(mWordDao).execute(word);
@@ -89,5 +96,32 @@ class WordRepository {
             mAsyncTaskDao.delete(words[0]);
             return null;
         }
+    }
+
+    /*private class updateAsyncTask extends AsyncTask<Word, Void, Void> {
+
+        private WordDao mAsyncTaskDao;
+
+        updateAsyncTask(WordDao dao) {
+            mAsyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(Word... words) {
+            mAsyncTaskDao.update(words[0]);
+            return null;
+        }
+    }*/
+
+
+    public void updateWord(final Word word) {
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                db.wordDao().updateWord(word);
+                return null;
+            }
+        }.execute();
     }
 }

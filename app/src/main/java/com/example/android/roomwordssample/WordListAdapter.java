@@ -16,12 +16,19 @@ package com.example.android.roomwordssample;
  * limitations under the License.
  */
 
+
 import android.content.Context;
+
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,32 +36,57 @@ import java.util.List;
 
 public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordViewHolder> {
 
-    class WordViewHolder extends RecyclerView.ViewHolder {
-        private final TextView wordItemView;
+    private OnClick itemClicked;
+    private Context context;
+    //private final LayoutInflater mInflater;
+    private List<Word> mWords = Collections.emptyList();
 
-        private WordViewHolder(View itemView) {
+    WordListAdapter(OnClick itemClicked){
+        this.itemClicked = itemClicked;
+    }
+
+    class WordViewHolder extends RecyclerView.ViewHolder {
+        TextView wordItemView;
+
+        public WordViewHolder(View itemView) {
             super(itemView);
             wordItemView = itemView.findViewById(R.id.textView);
+            //wordItemView.setOnClickListener()
         }
+
+
     }
 
-    private final LayoutInflater mInflater;
-    private List<Word> mWords = Collections.emptyList(); // Cached copy of words
+    public interface OnClick {
+        void update(Word word);
+    }
 
-    WordListAdapter(Context context) {
+    /*WordListAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
-    }
+    }*/
+
+
+
+
 
     @Override
     public WordViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = mInflater.inflate(R.layout.recyclerview_item, parent, false);
-        return new WordViewHolder(itemView);
+        context = parent.getContext();
+        return new WordListAdapter.WordViewHolder(LayoutInflater.from(context).inflate(R.layout.recyclerview_item,null));
+        //View itemView = mInflater.inflate(R.layout.recyclerview_item, parent, false);
+        //return new WordViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(WordViewHolder holder, int position) {
-        Word current = mWords.get(position);
+    public void onBindViewHolder(@NonNull WordViewHolder holder, int position) {
+        final Word current = mWords.get(position);
         holder.wordItemView.setText(current.getWord());
+        holder.wordItemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                itemClicked.update(current);
+            }
+        });
     }
 
     void setWords(List<Word> words) {
@@ -62,7 +94,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
         notifyDataSetChanged();
     }
 
-    public Word getWordAt(int position){
+    public Word getWordAt(int position) {
         return mWords.get(position);
     }
 
@@ -70,6 +102,8 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
     public int getItemCount() {
         return mWords.size();
     }
+
+
 }
 
 
